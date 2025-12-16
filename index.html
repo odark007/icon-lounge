@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Lounge | Accra</title>
+
+    <!-- Fonts: Playfair Display (Elegant Headings) & Lato (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* =========================================
+           CSS VARIABLES & RESET
+           ========================================= */
+        :root {
+            --primary-gold: #d4af37;
+            /* Elegant Warm Tone */
+            --primary-dark: #121212;
+            /* Deep Background */
+            --secondary-dark: #1e1e1e;
+            /* Card Background */
+            --text-light: #f4f4f4;
+            --text-gray: #b0b0b0;
+            --white: #ffffff;
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Lato', sans-serif;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* Reusable Components */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border: 2px solid var(--primary-gold);
+            background: transparent;
+            color: var(--primary-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background: var(--primary-gold);
+            color: var(--primary-dark);
+        }
+
+        .btn-fill {
+            background: var(--primary-gold);
+            color: var(--primary-dark);
+        }
+
+        .btn-fill:hover {
+            background: #b59020;
+            border-color: #b59020;
+        }
+
+        .section-padding {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-gold);
+        }
+
+        .section-title p {
+            color: var(--text-gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* =========================================
+           HEADER & NAVIGATION
+           ========================================= */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            transition: var(--transition);
+        }
+
+        header.scrolled {
+            background-color: rgba(18, 18, 18, 0.95);
+            padding: 10px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Replace the old .logo styles with this: */
+        .logo-link img {
+            max-height: 60px;
+            /* Adjust based on your logo's aspect ratio */
+            width: auto;
+            transition: var(--transition);
+            display: block;
+        }
+
+        /* Optional: Shrink logo slightly when scrolling down */
+        header.scrolled .logo-link img {
+            max-height: 45px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-gold);
+        }
+
+        .hamburger {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* =========================================
+           HERO SECTION
+           ========================================= */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--white);
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            font-style: italic;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* =========================================
+           LAUNCH EVENT (Hideable)
+           ========================================= */
+        .launch-event {
+            background: var(--primary-gold);
+            color: var(--primary-dark);
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .launch-event h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .launch-event .btn {
+            border-color: var(--primary-dark);
+            color: var(--primary-dark);
+            margin-top: 15px;
+        }
+
+        .launch-event .btn:hover {
+            background: var(--primary-dark);
+            color: var(--primary-gold);
+        }
+
+        /* =========================================
+           ABOUT SECTION
+           ========================================= */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 20px;
+        }
+
+        .about-img img {
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* =========================================
+           GALLERY SECTION
+           ========================================= */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            /* Desktop: 5 cols */
+            gap: 10px;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1;
+            /* Square crop */
+            cursor: default;
+            /* Not clickable as per brief */
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        /* =========================================
+           MENU TEASER
+           ========================================= */
+        .menu-teaser {
+            background: linear-gradient(rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 0.8)), url('https://images.unsplash.com/photo-1559339352-11d035aa65de?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            text-align: center;
+        }
+
+        /* =========================================
+           MENU MODAL (Popup)
+           ========================================= */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--secondary-dark);
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            border-radius: 8px;
+            overflow-y: auto;
+            position: relative;
+            padding: 40px;
+            border: 1px solid var(--primary-gold);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 2rem;
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .close-modal:hover {
+            color: var(--primary-gold);
+        }
+
+        .menu-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .menu-category h3 {
+            color: var(--primary-gold);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .menu-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item h4 {
+            color: var(--white);
+            margin-bottom: 5px;
+        }
+
+        .menu-item p {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        /* =========================================
+           FOOTER
+           ========================================= */
+        footer {
+            background-color: #000;
+            padding-top: 60px;
+            color: var(--text-gray);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            padding-bottom: 60px;
+        }
+
+        .footer-col h3 {
+            color: var(--white);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-col a:hover {
+            color: var(--primary-gold);
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 200px;
+            border: 0;
+            filter: grayscale(100%) invert(92%) contrast(83%);
+            /* Dark Mode Map Style */
+        }
+
+        .social-icons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .social-icons a:hover {
+            background: var(--primary-gold);
+            color: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            background-color: #0a0a0a;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        /* =========================================
+           RESPONSIVENESS (Mobile First Approach)
+           ========================================= */
+        @media (max-width: 992px) {
+            .gallery-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+
+            .hamburger {
+                display: block;
+                color: var(--white);
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background-color: var(--primary-dark);
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                transition: 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .menu-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Inside <header> -->
+    <div class="container nav-container">
+        <!-- Updated Logo Section -->
+        <a href="#home" class="logo-link">
+            <img src="images/iconnlounge-logo-removebg-preview.png" alt="Iccon Lounge Logo">
+        </a>
+
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#" class="open-menu">Menu</a></li>
+                <li><a href="#contact">Location</a></li>
+            </ul>
+        </nav>
+
+        <div class="hamburger">
+            <i class="fas fa-bars"></i>
+        </div>
+    </div>
+    </header>
+
+    <!-- 2. HERO SECTION -->
+    <section id="home" class="hero">
+        <div class="container hero-content">
+            <h1>Icon Lounge</h1>
+            <p>"Where Taste Meets Class"</p>
+            <a href="#contact" class="btn btn-fill">View Location</a>
+        </div>
+    </section>
+
+    <!-- 3. LAUNCH EVENT SECTION (Hideable) -->
+    <section class="launch-event">
+        <div class="container">
+            <h2>You're Invited to Our Launch Event!</h2>
+            <p>Join us for an evening of elegance, music, and fine dining. Date to be announced.</p>
+            <a href="#" class="btn">Attend Launch Party</a>
+        </div>
+    </section>
+
+    <!-- 4. ABOUT US SECTION -->
+    <section id="about" class="section-padding">
+        <div class="container">
+            <div class="section-title">
+                <h2>About Icon Lounge</h2>
+            </div>
+            <div class="about-grid">
+                <div class="about-text">
+                    <p>Welcome to Icon Lounge, your perfect escape after a busy day in Accra. We offer a warm and
+                        inviting atmosphere where you can unwind, enjoy exceptional cuisine, and savor carefully crafted
+                        beverages.</p>
+                    <p>Whether you're looking for a place to wine and dine with friends, celebrate special moments, or
+                        simply relax, Icon Lounge is your destination for memorable experiences.</p>
+                </div>
+                <div class="about-img">
+                    <!-- Placeholder using Unsplash -->
+                    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                        alt="Interior of Iccon Lounge">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. PHOTO GALLERY SECTION -->
+    <section id="gallery" class="section-padding" style="background-color: #161616;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Atmosphere</h2>
+            </div>
+            <!-- Grid: 5 cols desktop, 2 cols mobile -->
+            <div class="gallery-grid">
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 1"></div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 2"></div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 3"></div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 4"></div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1515518558913-895a90d9841c?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 5"></div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 6"></div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 7"></div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 8"></div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 9"></div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1466978913421-dad938667119?auto=format&fit=crop&w=400&q=80"
+                        alt="Gallery 10"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. MENU TEASER SECTION -->
+    <section id="menu-teaser" class="section-padding menu-teaser">
+        <div class="container">
+            <div class="section-title">
+                <h2 style="color: var(--white);">Explore Our Menu</h2>
+                <p style="color: var(--white);">Discover our carefully curated selection of dishes and beverages,
+                    crafted to delight your palate.</p>
+            </div>
+            <button class="btn btn-fill open-menu">View Full Menu</button>
+        </div>
+    </section>
+
+    <!-- 8. FOOTER (Multi-Column Layout) -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Inside <footer> -> <div class="footer-grid"> -->
+
+                <!-- Col 1: Google Map (Updated) -->
+                <div class="footer-col map-container">
+                    <h3>Find Us</h3>
+                    <!-- Embedded Google Map for Icon House/Lounge -->
+                    <iframe src="https://maps.google.com/maps?q=Icon+House+Accra&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+
+                    <!-- Direction Button -->
+                    <a href="https://maps.app.goo.gl/JA5Hxoz2yY5wmoXr9?g_st=com.google.maps.preview.copy"
+                        target="_blank" class="btn btn-fill map-btn">
+                        Click for map direction
+                    </a>
+                </div>
+
+                <!-- Col 2: Address & Hours -->
+                <div class="footer-col">
+                    <h3>Visit Us</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> <span>Accra, Ghana<br>Greater Accra Region</span></li>
+                    </ul>
+                    <h3 style="margin-top: 20px;">Opening Hours</h3>
+                    <ul style="font-size: 0.9rem;">
+                        <li>Mon - Sun: 11:00 AM - 11:00 PM</li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Contact Info -->
+                <div class="footer-col">
+                    <h3>Get In Touch</h3>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> <a href="tel:+233200000000">+233 20 000 0000</a></li>
+                        <li><i class="fab fa-whatsapp"></i> <a href="https://wa.me/233200000000">Chat on WhatsApp</a>
+                        </li>
+                        <li><i class="fas fa-envelope"></i> <a
+                                href="mailto:info@icconlounge.com">info@icconlounge.com</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Social Media -->
+                <div class="footer-col">
+                    <h3>Follow Us</h3>
+                    <div class="social-icons">
+                        <a href="#" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank" title="Snapchat"><i class="fab fa-snapchat-ghost"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 Icon Lounge. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- 7. MENU MODAL (Popup) -->
+    <div class="modal" id="menuModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="section-title">
+                <h2>Our Menu</h2>
+            </div>
+
+            <div class="menu-layout">
+                <!-- Left: Food -->
+                <div class="menu-category">
+                    <h3>Food</h3>
+
+                    <div class="menu-item">
+                        <h4>Grilled Tilapia</h4>
+                        <p>Fresh local tilapia grilled with signature spices, served with banku or yam chips.</p>
+                    </div>
+
+                    <div class="menu-item">
+                        <h4>Jollof Rice Supreme</h4>
+                        <p>Classic Ghanaian Jollof served with spicy goat meat or chicken wings.</p>
+                    </div>
+
+                    <div class="menu-item">
+                        <h4>Icon Burger</h4>
+                        <p>Double beef patty, caramelized onions, cheddar cheese and house sauce.</p>
+                    </div>
+
+                    <div class="menu-item">
+                        <h4>Pepper Soup</h4>
+                        <p>Spicy assorted meat soup served with fresh bread rolls.</p>
+                    </div>
+                </div>
+
+                <!-- Right: Drinks -->
+                <div class="menu-category">
+                    <h3>Drinks</h3>
+
+                    <div class="menu-item">
+                        <h4>Icon Sunset</h4>
+                        <p>Signature cocktail with rum, pineapple juice, and grenadine.</p>
+                    </div>
+
+                    <div class="menu-item">
+                        <h4>Fine Wine Selection</h4>
+                        <p>Ask our server for our curated list of red and white wines.</p>
+                    </div>
+
+                    <div class="menu-item">
+                        <h4>Local Beers</h4>
+                        <p>Chilled Club, Star, or Guinness.</p>
+                    </div>
+
+                    <div class="menu-item">
+                        <h4>Fresh Juices</h4>
+                        <p>Seasonal pineapple, watermelon, or mixed fruit juice.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. Sticky Header Effect
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // 2. Mobile Hamburger Menu
+            const hamburger = document.querySelector('.hamburger');
+            const navLinks = document.querySelector('.nav-links');
+            const navItems = document.querySelectorAll('.nav-links li a');
+
+            hamburger.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+                // Toggle icon between bars and times
+                const icon = hamburger.querySelector('i');
+                if (navLinks.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+
+            // Close mobile menu when a link is clicked
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (navLinks.classList.contains('active')) {
+                        navLinks.classList.remove('active');
+                        hamburger.querySelector('i').classList.remove('fa-times');
+                        hamburger.querySelector('i').classList.add('fa-bars');
+                    }
+                });
+            });
+
+            // 3. Menu Modal Functionality
+            const modal = document.getElementById('menuModal');
+            const openBtns = document.querySelectorAll('.open-menu');
+            const closeBtn = document.querySelector('.close-modal');
+
+            // Open Modal
+            openBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                });
+            });
+
+            // Close Modal
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+
+            // Close on Click Outside
+            window.addEventListener('click', (e) => {
+                if (e.target == modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            // Close on ESC Key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
