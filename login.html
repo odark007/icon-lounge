@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Icon Lounge Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-black text-white flex items-center justify-center h-screen">
+    <div class="bg-zinc-900 p-8 rounded-lg shadow-xl w-full max-w-md border border-zinc-800">
+        <img src="images/iconnlounge-logo-removebg-preview.png" class="h-12 mx-auto mb-6" alt="Logo">
+        <h2 class="text-2xl font-bold text-center mb-6">Admin Portal</h2>
+        
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-zinc-400">Email Address</label>
+                <input type="email" id="email" required class="w-full bg-black border border-zinc-700 rounded p-2 focus:border-[#d4af37] outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-zinc-400">Password</label>
+                <input type="password" id="password" required class="w-full bg-black border border-zinc-700 rounded p-2 focus:border-[#d4af37] outline-none">
+            </div>
+            <button type="submit" class="w-full bg-[#d4af37] text-black font-bold py-2 rounded hover:bg-yellow-600 transition">Sign In</button>
+        </form>
+        <p id="msg" class="mt-4 text-center text-red-500 text-sm hidden"></p>
+    </div>
+
+    <script src="admin-config.js"></script>
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) {
+                document.getElementById('msg').innerText = error.message;
+                document.getElementById('msg').classList.remove('hidden');
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

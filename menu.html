@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu | Icon Lounge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="menu.css"> <!-- New File -->
+</head>
+
+<body>
+    <!-- Reuse Header from index.html -->
+    <header id="header" class="scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="images/iconnlounge-logo-removebg-preview.png" alt="Icon Lounge Logo">
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="menu.html" class="active">Menu</a></li>
+                    <li><a href="index.html#contact">Location</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="section-padding">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Menu</h2>
+                <p id="menu-subtitle">Explore our culinary delights</p>
+            </div>
+
+            <!-- Filters & Search -->
+            <!-- Replace the menu-controls div in menu.html -->
+            <div class="menu-controls">
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="food">Food</button>
+                    <button class="filter-btn" data-filter="drinks">Drinks</button>
+                    <button class="filter-btn" data-filter="specials">Special Offers</button>
+                </div>
+
+                <!-- NEW: Action Group for Ordering -->
+                <div class="action-group">
+                    <button id="toggle-order-mode" class="btn btn-small">Start Ordering</button>
+                    <button id="open-delivery" class="btn btn-small">Delivery Partners</button>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" id="menu-search" placeholder="Search for a dish...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <!-- Ensure the Delivery Modal is also at the bottom of menu.html -->
+            <div class="modal" id="deliveryModal">
+                <div class="modal-content">
+                    <span class="close-modal" id="close-delivery">&times;</span>
+                    <div class="section-title">
+                        <h2>Order Delivery</h2>
+                        <p>Select your preferred delivery partner</p>
+                    </div>
+                    <div class="delivery-grid" id="delivery-partners-list"></div>
+                </div>
+            </div>
+
+            <!-- Menu Content -->
+            <div id="menu-display">
+                <!-- Injected by menu.js -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating WhatsApp Bar (Hidden by default) -->
+    <div id="order-bar" class="order-bar">
+        <div class="container bar-flex">
+            <div class="order-stats">
+                <span id="item-count">0</span> items | Total: <span id="total-price">GHS 0</span>
+            </div>
+            <button id="whatsapp-send" class="btn btn-fill">
+                Confirm via WhatsApp <i class="fab fa-whatsapp"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="data-client.js"></script>
+    <script src="script.js"></script>
+    <script src="menu.js"></script> <!-- New File -->
+</body>
+
+</html>

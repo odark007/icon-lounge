@@ -1,0 +1,200 @@
+/* Filters */
+.menu-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid var(--primary-gold);
+    color: var(--text-light);
+    cursor: pointer;
+    margin-right: 10px;
+    transition: var(--transition);
+}
+
+.filter-btn.active {
+    background: var(--primary-gold);
+    color: var(--primary-dark);
+}
+
+.search-box {
+    position: relative;
+    max-width: 300px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.search-box i {
+    position: absolute;
+    right: 15px;
+    color: var(--primary-gold);
+    pointer-events: none;
+}
+
+/* Size selection styling for Order Mode */
+.size-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.size-label {
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    text-transform: capitalize;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 40px 10px 15px;
+    background: var(--secondary-dark);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: var(--text-light);
+}
+
+/* Category & Subcategory */
+.category-section { margin-bottom: 60px; }
+.subcategory-title {
+    color: var(--primary-gold);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    padding-bottom: 10px;
+    margin: 30px 0 20px;
+    font-size: 1.8rem;
+}
+
+/* Menu Item Card */
+.menu-card {
+    display: flex;
+    background: var(--secondary-dark);
+    margin-bottom: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    gap: 20px;
+    min-height: 120px;
+}
+
+.menu-card-img {
+    width: 150px;
+    height: 150px; /* Enforces square height */
+    object-fit: cover; /* Prevents distortion */
+    flex-shrink: 0; /* Prevents image from being squashed by flexbox */
+    border-right: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.menu-card-content {
+    padding: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.menu-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.menu-card-header h4 {
+    font-size: 1.4rem; /* Increased size */
+    color: var(--white);
+    margin-bottom: 8px; /* Extra breathing room */
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+
+/* Specific styling for the star icon next to the name */
+.text-gold {
+    color: var(--primary-gold) !important;
+    margin-left: 8px;
+    font-size: 1.1rem; /* Keeps star slightly smaller than text */
+}
+
+/* Mobile Adjustment */
+@media (max-width: 600px) {
+    .menu-card-header h4 {
+        font-size: 1.25rem;
+    }
+}
+
+.price-list {
+    text-align: right;
+    font-weight: bold;
+    color: var(--primary-gold);
+    font-size: 0.9rem;
+}
+
+/* Order Mode UI */
+.order-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.qty-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--primary-gold);
+    background: transparent;
+    color: var(--primary-gold);
+    cursor: pointer;
+}
+
+/* Floating Bar */
+.order-bar {
+    position: fixed;
+    bottom: -100px;
+    left: 0;
+    width: 100%;
+    background: var(--secondary-dark);
+    border-top: 2px solid var(--primary-gold);
+    padding: 15px 0;
+    transition: 0.3s ease-in-out;
+    z-index: 2000;
+}
+
+.order-bar.active { bottom: 0; }
+.bar-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
+    .menu-card { flex-direction: column; }
+    .menu-card-img { width: 100%; height: 200px; }
+}
+
+.border-special { border: 1px solid var(--primary-gold) !important; }
+.image-container { position: relative; flex-shrink: 0; }
+.special-tag {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--primary-gold);
+    color: var(--primary-dark);
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px 0;
+    text-transform: uppercase;
+}
+.old-price {
+    text-decoration: line-through;
+    color: var(--text-gray);
+    font-size: 0.75rem;
+    margin-right: 5px;
+}
+.new-price { color: var(--primary-gold); }
+.text-gold { color: var(--primary-gold); }
