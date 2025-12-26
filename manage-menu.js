@@ -1,24 +1,27 @@
 // manage-menu.js
+// manage-menu.js
+let userRole = 'admin'; // Global role tracker
+const placeholderImage = 'images/logo-placeholder.png';
+
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Auth Guard
     const user = await checkAuth();
     if (!user) return;
 
-    // 2. Initial Data Load
+    // 2. Fetch Role before loading other data
+    const { data: profile } = await _supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
+    userRole = profile?.role || 'admin';
+
+    // 3. Initial Data Load
     loadItems();
     loadSubCategories();
-
-    // Call day selector on load
     renderDaySelector();
 
-    // 3. Form Listener
+    // 4. Form Listener
     const itemForm = document.getElementById('itemForm');
     if (itemForm) {
         itemForm.addEventListener('submit', handleSaveItem);
     }
-
-    const placeholderImage = 'images/logo-placeholder.png';
-
 });
 
 /**
@@ -257,6 +260,23 @@ async function loadSettingsData() {
             <span>${sc.name} <small class="text-zinc-500">(${sc.categories.name})</small></span>
             <button onclick="deleteSubCat(${sc.id})" class="text-red-500 text-xs">Remove</button>
         </div>`).join('');
+
+    // Fetch SMS Settings
+    const { data: smsSets } = await _supabase.from('sms_settings').select('*');
+    if (smsSets) {
+        smsSets.forEach(s => {
+            const el = document.getElementById(`set-${s.key_name.replace(/_/g, '-')}`);
+            if (el) el.value = s.value;
+            // Fallback check for the specific 'thank_you_template' key
+            if (s.key_name === 'thank_you_template') document.getElementById('set-thank-you').value = s.value;
+        });
+    }
+
+    // 5. RBAC Visibility: Hide settings if not Superadmin
+    const smsGroup = document.getElementById('sms-settings-group');
+    if (smsGroup) {
+        smsGroup.classList.toggle('hidden', userRole !== 'superadmin');
+    }
 }
 
 async function addSubCategory() {
@@ -265,4 +285,20 @@ async function addSubCategory() {
     if (!name) return;
     const { error } = await _supabase.from('sub_categories').insert([{ name, category_id }]);
     if (!error) { document.getElementById('newSubCatName').value = ''; loadSettingsData(); loadSubCategories(); }
+}
+
+
+// --- Logic: Save SMS System Settings ---
+async function saveSmsSettings() {
+    const settings = [
+        { key: 'thank_you_template', val: document.getElementById('set-thank-you').value },
+        { key: 'review_link', val: document.getElementById('set-review-link').value },
+        { key: 'website_link', val: document.getElementById('set-website-link').value }
+    ];
+
+    for (const s of settings) {
+        await _supabase.from('sms_settings').update({ value: s.val }).eq('key_name', s.key);
+    }
+
+    alert("System settings updated successfully!");
 }

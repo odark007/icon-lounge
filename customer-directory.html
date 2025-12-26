@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Directory | Icon Lounge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-black text-zinc-300 flex h-screen lg:overflow-hidden">
+    <!-- Mobile Backdrop: Hidden by default, visible when sidebar is open on mobile -->
+    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar (Same as Menu Admin) -->
+    <aside id="sidebar"
+        class="fixed inset-y-0 left-0 z-50 w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col transition-transform duration-300 transform -translate-x-full lg:translate-x-0 lg:static">
+        <div class="p-6 border-b border-zinc-800 flex justify-between items-center">
+            <img src="images/iconnlounge-logo-removebg-preview.png" class="h-8" alt="Logo">
+            <!-- Mobile Close Button -->
+            <button onclick="toggleSidebar()" class="lg:hidden text-zinc-500 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="dashboard.html" class="flex items-center space-x-3 p-3 rounded hover:bg-zinc-800 transition">
+                <i class="fas fa-chart-line"></i> <span>Dashboard</span>
+            </a>
+            <a href="customer-directory.html"
+                class="flex items-center space-x-3 p-3 rounded bg-zinc-800 text-[#d4af37]">
+                <i class="fas fa-address-book"></i> <span>Customers</span>
+            </a>
+            <!-- Links for next phases -->
+            <a href="served-customers.html"
+                class="flex items-center space-x-3 p-3 rounded hover:bg-zinc-800 transition">
+                <i class="fas fa-user-check"></i> <span>Served Customers</span>
+            </a>
+            <div id="superadmin-only-nav" class="hidden">
+                <a href="promotional-sms.html"
+                    class="flex items-center space-x-3 p-3 rounded hover:bg-zinc-800 transition text-zinc-500">
+                    <i class="fas fa-bullhorn"></i> <span>Promotions (SA)</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <header class="h-16 border-b border-zinc-800 flex items-center justify-between px-4 lg:px-8 bg-zinc-900">
+            <!-- Mobile Menu Toggle -->
+            <button onclick="toggleSidebar()" class="lg:hidden text-[#d4af37] mr-4">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-xl font-bold">Customer Directory</h1>
+            <button onclick="openCustomerModal()"
+                class="bg-[#d4af37] text-black px-4 py-2 rounded font-bold hover:bg-yellow-600 transition">
+                <i class="fas fa-user-plus mr-2"></i> Add Customer
+            </button>
+        </header>
+
+        <section class="p-8 overflow-y-auto flex-1">
+            <!-- Search & Filters -->
+            <div class="flex gap-4 mb-6">
+                <div class="flex-1 relative">
+                    <i class="fas fa-search absolute left-3 top-3 text-zinc-500"></i>
+                    <input type="text" id="directorySearch" placeholder="Search by name or number..."
+                        class="w-full bg-zinc-900 border border-zinc-800 rounded p-2 pl-10 outline-none focus:border-[#d4af37]">
+                </div>
+            </div>
+
+            <!-- Customer Table -->
+            <div class="bg-zinc-900 rounded-lg border border-zinc-800 overflow-x-auto">
+                <table class="w-full text-left min-w-[600px]">
+                    <thead class="bg-zinc-800 text-zinc-400 text-sm uppercase">
+                        <tr>
+                            <th class="p-4">Name</th>
+                            <th class="p-4">Phone Number</th>
+                            <th class="p-4">Saved On</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customer-table-body">
+                        <!-- Loaded by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+
+    <!-- Customer Modal: Added responsive padding and margins -->
+    <div id="customerModal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-zinc-900 w-full max-w-md p-6 md:p-8 rounded-lg border border-zinc-800 mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modalTitle" class="text-xl font-bold">Add New Customer</h3>
+                <button onclick="closeCustomerModal()" class="text-zinc-500 hover:text-white"><i
+                        class="fas fa-times"></i></button>
+            </div>
+
+            <form id="customerForm" class="space-y-4">
+                <input type="hidden" id="customerId">
+                <div>
+                    <label class="text-sm text-zinc-500">Phone Number (Required)</label>
+                    <input type="text" id="custPhone" required placeholder="e.g. 0244000000 or 233..."
+                        class="w-full bg-black border border-zinc-700 rounded p-2 outline-none focus:border-[#d4af37]">
+                    <p id="dupWarning" class="text-red-500 text-xs mt-1 hidden">This number already exists!</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm text-zinc-500">First Name</label>
+                        <input type="text" id="custFirst"
+                            class="w-full bg-black border border-zinc-700 rounded p-2 outline-none focus:border-[#d4af37]">
+                    </div>
+                    <div>
+                        <label class="text-sm text-zinc-500">Surname</label>
+                        <input type="text" id="custLast"
+                            class="w-full bg-black border border-zinc-700 rounded p-2 outline-none focus:border-[#d4af37]">
+                    </div>
+                </div>
+                <button type="submit" id="saveCustBtn"
+                    class="w-full bg-[#d4af37] text-black font-bold py-3 rounded mt-4">Save Contact</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin-config.js"></script>
+    <script src="customer-directory.js"></script>
+</body>
+
+</html>

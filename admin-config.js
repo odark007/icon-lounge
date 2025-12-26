@@ -12,3 +12,32 @@ async function checkAuth() {
     }
     return session.user;
 }
+
+
+// --- Global Utilities ---
+function standardizePhone(phone) {
+    if (!phone) return "";
+    let clean = phone.replace(/\D/g, ''); // Remove non-digits
+    if (clean.startsWith('0')) clean = '233' + clean.substring(1);
+    if (clean.length === 9) clean = '233' + clean;
+    return clean;
+}
+
+// --- Global UI Logic: Mobile Sidebar Toggle ---
+window.toggleSidebar = function () {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+
+    if (!sidebar || !backdrop) return;
+
+    // Toggle the classes to slide the sidebar in/out
+    if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        backdrop.classList.remove('hidden');
+    } else {
+        sidebar.classList.remove('translate-x-0');
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+    }
+};

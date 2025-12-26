@@ -83,22 +83,14 @@
                     <div class="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
                         <h3 class="text-lg font-bold mb-4 text-[#d4af37]">Manage Sub-Categories</h3>
                         <div id="sub-cat-list" class="space-y-2 mb-4"></div>
-                        <div class="flex flex-col sm:flex-row gap-3 mt-4">
-                            <!-- Input: Full width on mobile, flexible on desktop -->
-                            <input type="text" id="newSubCatName" placeholder="Sub-category Name"
-                                class="flex-1 bg-black border border-zinc-700 rounded p-3 text-base outline-none focus:border-[#d4af37]">
-
-                            <!-- Select: Full width on mobile, auto width on desktop -->
+                        <div class="flex gap-2">
+                            <input type="text" id="newSubCatName" placeholder="Name"
+                                class="flex-1 bg-black border border-zinc-700 rounded p-2 text-sm outline-none">
                             <select id="parentCatId"
-                                class="w-full sm:w-32 bg-black border border-zinc-700 rounded p-3 text-base outline-none focus:border-[#d4af37]">
-                            </select>
-
-                            <!-- Button: Large touch target for mobile -->
+                                class="bg-black border border-zinc-700 rounded p-2 text-sm outline-none"></select>
                             <button onclick="addSubCategory()"
-                                class="w-full sm:w-auto bg-[#d4af37] text-black px-6 py-3 rounded font-bold hover:bg-yellow-600 transition flex items-center justify-center">
-                                <i class="fas fa-plus mr-2 sm:mr-0"></i>
-                                <span class="sm:hidden uppercase tracking-wider">Add Category</span>
-                            </button>
+                                class="bg-[#d4af37] text-black px-4 py-2 rounded font-bold"><i
+                                    class="fas fa-plus"></i></button>
                         </div>
                     </div>
 

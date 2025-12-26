@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Served Customer | Icon Lounge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .preview-box {
+            background: #000;
+            border: 1px dashed #d4af37;
+            padding: 15px;
+            color: #888;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-zinc-300 flex h-screen lg:overflow-hidden">
+    <!-- Mobile Backdrop: Hidden by default, visible when sidebar is open on mobile -->
+    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar (Same as previous) -->
+    <aside id="sidebar"
+        class="fixed inset-y-0 left-0 z-50 w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col transition-transform duration-300 transform -translate-x-full lg:translate-x-0 lg:static">
+        <div class="p-6 border-b border-zinc-800 flex justify-between items-center">
+            <img src="images/iconnlounge-logo-removebg-preview.png" class="h-8" alt="Logo">
+            <!-- Mobile Close Button -->
+            <button onclick="toggleSidebar()" class="lg:hidden text-zinc-500 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="dashboard.html" class="flex items-center space-x-3 p-3 rounded hover:bg-zinc-800 transition">
+                <i class="fas fa-chart-line"></i> <span>Dashboard</span>
+            </a>
+            <a href="customer-directory.html"
+                class="flex items-center space-x-3 p-3 rounded hover:bg-zinc-800 transition">
+                <i class="fas fa-address-book"></i> <span>Customers</span>
+            </a>
+            <a href="served-customers.html" class="flex items-center space-x-3 p-3 rounded bg-zinc-800 text-[#d4af37]">
+                <i class="fas fa-user-check"></i> <span>Served Customers</span>
+            </a>
+            <div id="superadmin-only-nav" class="hidden">
+                <a href="promotional-sms.html"
+                    class="flex items-center space-x-3 p-3 rounded hover:bg-zinc-800 transition text-[#d4af37]/80">
+                    <i class="fas fa-bullhorn"></i> <span>Promotions (SA)</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <header class="h-16 border-b border-zinc-800 flex items-center justify-between px-4 lg:px-8 bg-zinc-900">
+            <!-- Mobile Menu Toggle -->
+            <button onclick="toggleSidebar()" class="lg:hidden text-[#d4af37] mr-4">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-xl font-bold">Served Customer SMS</h1>
+        </header>
+
+        <section class="p-8 overflow-y-auto flex-1 max-w-4xl">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                <!-- Left: Input Form -->
+                <div class="bg-zinc-900 p-6 rounded-lg border border-zinc-800 space-y-4">
+                    <div>
+                        <label class="text-xs text-zinc-500 uppercase font-bold">Service Date</label>
+                        <input type="date" id="serviceDate"
+                            class="w-full bg-black border border-zinc-700 rounded p-2 mt-1">
+                    </div>
+
+                    <div class="relative">
+                        <label class="text-xs text-zinc-500 uppercase font-bold">Customer Phone</label>
+                        <input type="text" id="servePhone" placeholder="Type number..."
+                            class="w-full bg-black border border-zinc-700 rounded p-2 mt-1 outline-none focus:border-[#d4af37]">
+                        <!-- Suggestions Dropdown -->
+                        <div id="phoneSuggestions"
+                            class="absolute z-10 w-full bg-zinc-800 border border-zinc-700 rounded mt-1 hidden max-h-40 overflow-y-auto shadow-xl">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs text-zinc-500 uppercase font-bold">Customer First Name</label>
+                        <input type="text" id="serveName" placeholder="Optional"
+                            class="w-full bg-black border border-zinc-700 rounded p-2 mt-1">
+                        <div id="saveNewCustGroup" class="mt-2 hidden">
+                            <label class="flex items-center space-x-2 text-xs text-[#d4af37]">
+                                <input type="checkbox" id="saveToDb"> <span>Save new customer to directory?</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-zinc-800 pt-4 mt-4">
+                        <label class="text-xs text-zinc-500 uppercase font-bold block mb-2">Message Type</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="msgType" value="template" checked onchange="toggleMsgType()">
+                                <span class="text-sm">Standard Template</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="msgType" value="custom" onchange="toggleMsgType()">
+                                <span class="text-sm">Custom Message</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="customMsgArea" class="hidden">
+                        <textarea id="customText" placeholder="Type your message here..."
+                            class="w-full bg-black border border-zinc-700 rounded p-4 h-32 text-base"></textarea>
+
+                        <div class="flex items-center gap-2 mt-2 mb-2">
+                            <span class="text-[10px] text-zinc-500 uppercase font-bold">Personalize:</span>
+                            <button type="button" onclick="insertVariable('customText', '{{first_name}}')"
+                                class="text-[10px] bg-zinc-800 border border-[#d4af37] text-[#d4af37] px-2 py-1 rounded hover:bg-[#d4af37] hover:text-black transition">
+                                <i class="fas fa-plus-circle"></i> Customer Name
+                            </button>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3 mt-2">
+                            <label class="flex items-center space-x-1 text-xs">
+                                <input type="checkbox" id="addWebsite" onchange="updatePreview()"> <span>Add Website
+                                    Link</span>
+                            </label>
+                            <label class="flex items-center space-x-1 text-xs">
+                                <input type="checkbox" id="addReview" onchange="updatePreview()"> <span>Add Review
+                                    Link</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Preview & Send -->
+                <div class="space-y-6">
+                    <div class="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+                        <h3 class="text-sm font-bold text-[#d4af37] mb-4 uppercase">Message Preview</h3>
+                        <div id="msgPreview" class="preview-box">
+                            <!-- Preview Content -->
+                        </div>
+                        <p id="charCount" class="text-right text-[10px] text-zinc-500 mt-2">0 characters (1 segment)</p>
+                    </div>
+
+                    <button id="sendSmsBtn" onclick="handleSendServedSMS()"
+                        class="w-full bg-[#d4af37] text-black font-bold py-4 rounded-lg hover:bg-yellow-600 transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send SMS Now</span>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed bottom-8 right-8 bg-[#d4af37] text-black px-6 py-3 rounded-lg shadow-2xl font-bold transform translate-y-20 opacity-0 transition-all duration-300 z-[100]">
+    </div>
+
+    <script src="admin-config.js"></script>
+    <script src="sms-helper.js"></script>
+    <script src="served-customers.js"></script>
+</body>
+
+</html>
