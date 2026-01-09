@@ -165,18 +165,42 @@
                     <textarea id="itemDesc"
                         class="w-full bg-black border border-zinc-700 rounded p-2 outline-none focus:border-[#d4af37]"></textarea>
                 </div>
-                <div class="grid grid-cols-3 gap-4">
-                    <div>
-                        <label class="text-sm text-zinc-500">Small (GHS)</label>
-                        <input type="number" id="priceSmall" class="w-full bg-black border border-zinc-700 rounded p-2">
+                <!-- Pricing Section -->
+                <div class="bg-zinc-800/50 p-4 rounded border border-zinc-700">
+                    <label class="text-xs text-[#d4af37] uppercase font-bold mb-2 block">Pricing Configuration</label>
+
+                    <!-- Option A: Single Price -->
+                    <div class="mb-4">
+                        <label class="text-sm text-zinc-500">Standard Price (GHS) <span class="text-xs italic">- For
+                                items without sizes</span></label>
+                        <input type="number" id="priceStandard" placeholder="e.g. 50"
+                            class="w-full bg-black border border-zinc-700 rounded p-2 focus:border-[#d4af37] outline-none">
                     </div>
-                    <div>
-                        <label class="text-sm text-zinc-500">Medium (GHS)</label>
-                        <input type="number" id="priceMed" class="w-full bg-black border border-zinc-700 rounded p-2">
-                    </div>
-                    <div>
-                        <label class="text-sm text-zinc-500">Large (GHS)</label>
-                        <input type="number" id="priceLarge" class="w-full bg-black border border-zinc-700 rounded p-2">
+
+                    <!-- Option B: Sized Prices -->
+                    <label class="text-sm text-zinc-500 mb-2 block">Sized Pricing (GHS) <span class="text-xs italic">-
+                            Leave blank if not applicable</span></label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                            <label class="text-xs text-zinc-600">Small</label>
+                            <input type="number" id="priceSmall"
+                                class="w-full bg-black border border-zinc-700 rounded p-2 focus:border-[#d4af37] outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-zinc-600">Medium</label>
+                            <input type="number" id="priceMed"
+                                class="w-full bg-black border border-zinc-700 rounded p-2 focus:border-[#d4af37] outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-zinc-600">Large</label>
+                            <input type="number" id="priceLarge"
+                                class="w-full bg-black border border-zinc-700 rounded p-2 focus:border-[#d4af37] outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-zinc-600">Extra Large</label>
+                            <input type="number" id="priceXL"
+                                class="w-full bg-black border border-zinc-700 rounded p-2 focus:border-[#d4af37] outline-none">
+                        </div>
                     </div>
                 </div>
                 <div>

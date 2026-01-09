@@ -1,5 +1,4 @@
 // manage-menu.js
-// manage-menu.js
 let userRole = 'admin'; // Global role tracker
 const placeholderImage = 'images/logo-placeholder.png';
 
@@ -40,6 +39,28 @@ async function loadSubCategories() {
 }
 
 /**
+ * Helper to format prices for the admin table
+ */
+function formatPricesForTable(prices) {
+    if (!prices) return '';
+    
+    const labels = { 
+        standard: 'Std', 
+        small: 'S', 
+        medium: 'M', 
+        large: 'L', 
+        xl: 'XL' 
+    };
+    
+    return Object.entries(prices)
+        .map(([key, val]) => {
+            const label = labels[key] || key; // Fallback to key name if not in map
+            return `<span class="bg-zinc-800 px-2 py-0.5 rounded text-xs border border-zinc-700">${label}: ${val}</span>`;
+        })
+        .join(' ');
+}
+
+/**
  * Fetches all items and renders the management table
  */
 async function loadItems() {
@@ -59,12 +80,12 @@ async function loadItems() {
     tbody.innerHTML = data.map(item => `
         <tr class="border-b border-zinc-800 hover:bg-zinc-800/50 transition">
             <td class="p-4 flex items-center space-x-3">
-                <img src="${item.image_url || 'images/logo-placeholder.png'}" class="h-10 w-10 object-cover rounded border border-zinc-700">
+                <img src="${item.image_url || 'images/logo-placeholder.png'}" class="h-10 w-10 object-cover rounded border border-zinc-700" onerror="this.src='images/logo-placeholder.png'">
                 <span class="font-medium">${item.name}</span>
             </td>
             <td class="p-4 text-sm text-zinc-500">${item.sub_categories?.name || 'N/A'}</td>
-            <td class="p-4 text-sm font-mono text-zinc-400">
-                ${Object.entries(item.prices).map(([s, p]) => `${s[0].toUpperCase()}: ${p}`).join(', ')}
+            <td class="p-4 text-sm font-mono text-zinc-400 flex flex-wrap gap-1">
+                ${formatPricesForTable(item.prices)}
             </td>
             <td class="p-4 text-center">
                 ${item.featured ? '<span class="text-green-500">✅</span>' : '<span class="text-zinc-600">❌</span>'}
@@ -93,10 +114,27 @@ async function handleSaveItem(e) {
     const id = document.getElementById('itemId').value;
     const image_url = document.getElementById('itemImagePath').value;
 
+    // --- NEW PRICING LOGIC ---
     const prices = {};
-    if (document.getElementById('priceSmall').value) prices.small = Number(document.getElementById('priceSmall').value);
-    if (document.getElementById('priceMed').value) prices.medium = Number(document.getElementById('priceMed').value);
-    if (document.getElementById('priceLarge').value) prices.large = Number(document.getElementById('priceLarge').value);
+    
+    const getVal = (elementId) => {
+        const el = document.getElementById(elementId);
+        return (el && el.value !== "") ? Number(el.value) : null;
+    };
+
+    const pStd = getVal('priceStandard');
+    const pS = getVal('priceSmall');
+    const pM = getVal('priceMed');
+    const pL = getVal('priceLarge');
+    const pXL = getVal('priceXL');
+
+    // Only add to object if value exists (non-null)
+    if (pStd !== null) prices.standard = pStd;
+    if (pS !== null) prices.small = pS;
+    if (pM !== null) prices.medium = pM;
+    if (pL !== null) prices.large = pL;
+    if (pXL !== null) prices.xl = pXL;
+    // -------------------------
 
     // COLLECT SELECTED DAYS
     const selectedDays = Array.from(document.querySelectorAll('input[name="special_days"]:checked'))
@@ -166,6 +204,9 @@ function openModal() {
     document.getElementById('modalTitle').innerText = 'Add Menu Item';
     document.getElementById('itemForm').reset();
     document.getElementById('itemId').value = '';
+    // Clear specific fields manually just in case
+    document.getElementById('itemSubCat').selectedIndex = 0;
+    toggleSpecialFields();
     document.getElementById('itemModal').classList.remove('hidden');
 }
 
@@ -188,17 +229,22 @@ window.editItem = (item) => {
 
     document.getElementById('itemImagePath').value = item.image_url || '';
 
-    // Fill prices if they exist
+    // --- Fill prices if they exist (Handle new structure) ---
+    document.getElementById('priceStandard').value = item.prices.standard || '';
     document.getElementById('priceSmall').value = item.prices.small || '';
     document.getElementById('priceMed').value = item.prices.medium || '';
     document.getElementById('priceLarge').value = item.prices.large || '';
+    document.getElementById('priceXL').value = item.prices.xl || ''; // New XL Field
 
     document.getElementById('itemDiscount').value = item.discount_percent || '';
     document.getElementById('itemSpecialText').value = item.special_text || '';
+    
+    // Handle Dates safely
     document.getElementById('itemSpecialStart').value = item.special_start ? item.special_start.slice(0, 16) : '';
     document.getElementById('itemSpecialEnd').value = item.special_end ? item.special_end.slice(0, 16) : '';
-
-    // Toggle fields visibility
+    
+    // Handle Special Checkbox logic
+    document.getElementById('itemIsSpecial').checked = item.is_special || false;
     toggleSpecialFields();
 
     // Populate Checkboxes for days
@@ -254,12 +300,19 @@ function toggleSpecialFields() {
 async function loadSettingsData() {
     const { data: categories } = await _supabase.from('categories').select('*');
     const { data: subCats } = await _supabase.from('sub_categories').select('*, categories(name)');
-    document.getElementById('parentCatId').innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-    document.getElementById('sub-cat-list').innerHTML = subCats.map(sc => `
-        <div class="flex justify-between items-center bg-black p-2 rounded border border-zinc-800 mb-2">
-            <span>${sc.name} <small class="text-zinc-500">(${sc.categories.name})</small></span>
-            <button onclick="deleteSubCat(${sc.id})" class="text-red-500 text-xs">Remove</button>
-        </div>`).join('');
+    const parentCatSelect = document.getElementById('parentCatId');
+    if (parentCatSelect) {
+        parentCatSelect.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    }
+    
+    const subCatList = document.getElementById('sub-cat-list');
+    if (subCatList) {
+        subCatList.innerHTML = subCats.map(sc => `
+            <div class="flex justify-between items-center bg-black p-2 rounded border border-zinc-800 mb-2">
+                <span>${sc.name} <small class="text-zinc-500">(${sc.categories.name})</small></span>
+                <button onclick="deleteSubCat(${sc.id})" class="text-red-500 text-xs">Remove</button>
+            </div>`).join('');
+    }
 
     // Fetch SMS Settings
     const { data: smsSets } = await _supabase.from('sms_settings').select('*');
@@ -286,7 +339,6 @@ async function addSubCategory() {
     const { error } = await _supabase.from('sub_categories').insert([{ name, category_id }]);
     if (!error) { document.getElementById('newSubCatName').value = ''; loadSettingsData(); loadSubCategories(); }
 }
-
 
 // --- Logic: Save SMS System Settings ---
 async function saveSmsSettings() {
