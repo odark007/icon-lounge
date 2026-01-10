@@ -134,7 +134,7 @@ async function handleSaveItem(e) {
     saveBtn.disabled = true;
 
     const id = document.getElementById('itemId').value;
-
+    
     // --- IMAGE UPLOAD LOGIC ---
     const imageFile = document.getElementById('itemImageFile').files[0];
     const existingUrl = document.getElementById('itemImageUrl').value;
@@ -216,55 +216,13 @@ async function handleSaveItem(e) {
 }
 
 /**
- * Deletes an item from Database AND Storage
+ * Deletes an item after confirmation
  */
 async function deleteItem(id) {
-    if (!confirm('Are you sure you want to delete this item? This cannot be undone.')) return;
-
-    // 1. Fetch the item first to get the image URL
-    const { data: item, error: fetchError } = await _supabase
-        .from('items')
-        .select('image_url')
-        .eq('id', id)
-        .single();
-
-    if (fetchError) {
-        alert("Error finding item: " + fetchError.message);
-        return;
-    }
-
-    // 2. Delete Image from Storage (if it exists and is not a placeholder)
-    const imageUrl = item.image_url;
-    if (imageUrl && imageUrl.includes('menu-images') && !imageUrl.includes('placeholder')) {
-        try {
-            // Extract the filename from the URL (everything after the last slash)
-            // URL format: .../storage/v1/object/public/menu-images/item-12345.jpg
-            const fileName = imageUrl.split('/').pop();
-
-            // Remove from Supabase Storage
-            const { error: storageError } = await _supabase.storage
-                .from('menu-images')
-                .remove([fileName]);
-
-            if (storageError) {
-                console.warn("Could not delete image file:", storageError.message);
-                // We verify strictly but don't stop the DB deletion if image fails
-            }
-        } catch (err) {
-            console.error("Error processing image deletion:", err);
-        }
-    }
-
-    // 3. Delete the Row from Database
-    const { error: deleteError } = await _supabase
-        .from('items')
-        .delete()
-        .eq('id', id);
-
-    if (deleteError) {
-        alert("Error deleting database record: " + deleteError.message);
-    } else {
-        loadItems(); // Refresh the table
+    if (confirm('Are you sure you want to delete this item? This cannot be undone.')) {
+        const { error } = await _supabase.from('items').delete().eq('id', id);
+        if (error) alert(error.message);
+        else loadItems();
     }
 }
 
@@ -277,7 +235,7 @@ function openModal() {
     document.getElementById('itemId').value = '';
     // Clear specific fields manually just in case
     document.getElementById('itemSubCat').selectedIndex = 0;
-
+    
     // Reset Image UI
     document.getElementById('itemImageUrl').value = '';
     document.getElementById('imagePreview').src = '';
@@ -342,11 +300,6 @@ window.editItem = (item) => {
     }
 };
 
-/* =========================================
-   HELPER FUNCTIONS & SETTINGS LOGIC
-   (Replace the bottom half of your file with this)
-   ========================================= */
-
 function renderDaySelector() {
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const container = document.getElementById('day-selector');
@@ -361,12 +314,7 @@ function renderDaySelector() {
 async function deleteSubCat(id) {
     if (confirm('Remove sub-category?')) {
         const { error } = await _supabase.from('sub_categories').delete().eq('id', id);
-        if (!error) {
-            loadSettingsData();
-            loadSubCategories();
-        } else {
-            alert(error.message);
-        }
+        if (!error) { loadSettingsData(); loadSubCategories(); }
     }
 }
 
@@ -392,41 +340,21 @@ function toggleSpecialFields() {
     document.getElementById('special-fields').classList.toggle('hidden', !isChecked);
 }
 
-/* --- SETTINGS: Sub-Category Management --- */
-
 async function loadSettingsData() {
     const { data: categories } = await _supabase.from('categories').select('*');
-    const { data: subCats } = await _supabase.from('sub_categories').select('*, categories(name)').order('name');
-
-    // Populate Dropdown
+    const { data: subCats } = await _supabase.from('sub_categories').select('*, categories(name)');
+    
     const parentCatSelect = document.getElementById('parentCatId');
     if (parentCatSelect) {
-        // Keep current selection if user is editing, otherwise reset
-        const currentVal = parentCatSelect.value;
         parentCatSelect.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
-        // Restore selection if in edit mode
-        if (currentVal && document.getElementById('editSubCatId').value) {
-            parentCatSelect.value = currentVal;
-        }
     }
 
-    // Populate List with Edit Buttons
     const subCatList = document.getElementById('sub-cat-list');
     if (subCatList) {
         subCatList.innerHTML = subCats.map(sc => `
-            <div class="flex justify-between items-center bg-black p-3 rounded border border-zinc-800 mb-2">
-                <span class="text-sm">${sc.name} <small class="text-zinc-500 ml-1">(${sc.categories?.name})</small></span>
-                <div class="flex items-center gap-3">
-                    <button onclick="editSubCat(${sc.id}, '${sc.name.replace(/'/g, "\\'")}', ${sc.category_id})" 
-                            class="text-blue-500 hover:text-blue-400 text-xs uppercase font-bold">
-                        Edit
-                    </button>
-                    <button onclick="deleteSubCat(${sc.id})" 
-                            class="text-red-500 hover:text-red-400 text-xs uppercase font-bold">
-                        Remove
-                    </button>
-                </div>
+            <div class="flex justify-between items-center bg-black p-2 rounded border border-zinc-800 mb-2">
+                <span>${sc.name} <small class="text-zinc-500">(${sc.categories.name})</small></span>
+                <button onclick="deleteSubCat(${sc.id})" class="text-red-500 text-xs">Remove</button>
             </div>`).join('');
     }
 
@@ -446,74 +374,13 @@ async function loadSettingsData() {
     }
 }
 
-// Handle Add OR Update Sub-Category
-async function handleSubCategory() {
-    const nameInput = document.getElementById('newSubCatName');
-    const catSelect = document.getElementById('parentCatId');
-    const editIdInput = document.getElementById('editSubCatId');
-
-    const name = nameInput.value.trim();
-    const category_id = catSelect.value;
-    const editId = editIdInput.value;
-
-    if (!name) return alert("Please enter a name");
-
-    let error;
-
-    if (editId) {
-        // UPDATE MODE
-        const res = await _supabase
-            .from('sub_categories')
-            .update({ name, category_id })
-            .eq('id', editId);
-        error = res.error;
-    } else {
-        // ADD MODE
-        const res = await _supabase
-            .from('sub_categories')
-            .insert([{ name, category_id }]);
-        error = res.error;
-    }
-
-    if (error) {
-        alert("Error: " + error.message);
-    } else {
-        cancelSubCatEdit(); // Reset form
-        loadSettingsData(); // Refresh list
-        loadSubCategories(); // Refresh dropdown in Item Modal
-    }
+async function addSubCategory() {
+    const name = document.getElementById('newSubCatName').value;
+    const category_id = document.getElementById('parentCatId').value;
+    if (!name) return;
+    const { error } = await _supabase.from('sub_categories').insert([{ name, category_id }]);
+    if (!error) { document.getElementById('newSubCatName').value = ''; loadSettingsData(); loadSubCategories(); }
 }
-
-// Trigger Edit Mode
-window.editSubCat = (id, name, catId) => {
-    document.getElementById('editSubCatId').value = id;
-    document.getElementById('newSubCatName').value = name;
-    document.getElementById('parentCatId').value = catId;
-
-    // Change UI to "Edit Mode"
-    const btn = document.getElementById('saveSubCatBtn');
-    btn.classList.replace('bg-[#d4af37]', 'bg-blue-600');
-    btn.classList.replace('hover:bg-yellow-600', 'hover:bg-blue-500');
-
-    document.getElementById('subCatBtnIcon').classList.replace('fa-plus', 'fa-save');
-    document.getElementById('subCatBtnText').innerText = 'Update';
-    document.getElementById('cancelSubCatBtn').classList.remove('hidden');
-};
-
-// Cancel Edit Mode
-window.cancelSubCatEdit = () => {
-    document.getElementById('editSubCatId').value = '';
-    document.getElementById('newSubCatName').value = '';
-
-    // Revert UI to "Add Mode"
-    const btn = document.getElementById('saveSubCatBtn');
-    btn.classList.replace('bg-blue-600', 'bg-[#d4af37]');
-    btn.classList.replace('hover:bg-blue-500', 'hover:bg-yellow-600');
-
-    document.getElementById('subCatBtnIcon').classList.replace('fa-save', 'fa-plus');
-    document.getElementById('subCatBtnText').innerText = 'Add';
-    document.getElementById('cancelSubCatBtn').classList.add('hidden');
-};
 
 async function saveSmsSettings() {
     const settings = [

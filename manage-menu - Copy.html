@@ -84,7 +84,6 @@
                         <h3 class="text-lg font-bold mb-4 text-[#d4af37]">Manage Sub-Categories</h3>
                         <div id="sub-cat-list" class="space-y-2 mb-4"></div>
                         <div class="flex flex-col sm:flex-row gap-3 mt-4">
-                            <input type="hidden" id="editSubCatId">
                             <!-- Input: Full width on mobile, flexible on desktop -->
                             <input type="text" id="newSubCatName" placeholder="Sub-category Name"
                                 class="flex-1 bg-black border border-zinc-700 rounded p-3 text-base outline-none focus:border-[#d4af37]">
@@ -94,21 +93,12 @@
                                 class="w-full sm:w-32 bg-black border border-zinc-700 rounded p-3 text-base outline-none focus:border-[#d4af37]">
                             </select>
 
-                            <!-- 2. Updated Buttons Area -->
-                            <div class="flex gap-2 w-full sm:w-auto">
-                                <!-- Cancel Button (Hidden by default) -->
-                                <button id="cancelSubCatBtn" onclick="cancelSubCatEdit()"
-                                    class="hidden bg-zinc-700 text-white px-4 py-3 rounded font-bold hover:bg-zinc-600 transition">
-                                    <i class="fas fa-times"></i>
-                                </button>
-
-                                <!-- Main Save Button (Renamed function) -->
-                                <button id="saveSubCatBtn" onclick="handleSubCategory()"
-                                    class="flex-1 sm:w-auto bg-[#d4af37] text-black px-6 py-3 rounded font-bold hover:bg-yellow-600 transition flex items-center justify-center whitespace-nowrap">
-                                    <i class="fas fa-plus mr-2 sm:mr-0" id="subCatBtnIcon"></i>
-                                    <span class="sm:hidden uppercase tracking-wider" id="subCatBtnText">Add</span>
-                                </button>
-                            </div>
+                            <!-- Button: Large touch target for mobile -->
+                            <button onclick="addSubCategory()"
+                                class="w-full sm:w-auto bg-[#d4af37] text-black px-6 py-3 rounded font-bold hover:bg-yellow-600 transition flex items-center justify-center">
+                                <i class="fas fa-plus mr-2 sm:mr-0"></i>
+                                <span class="sm:hidden uppercase tracking-wider">Add Category</span>
+                            </button>
                         </div>
                     </div>
 

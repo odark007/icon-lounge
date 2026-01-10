@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchInput = document.getElementById('menu-search');
 
+    // --- CONFIG: Define the strict order for pricing ---
+    const priceOrder = ['standard', 'small', 'medium', 'large', 'xl'];
+
     // --- Special Offer Validator ---
     const isOfferActive = (item) => {
         if (!item.isSpecial) return false;
@@ -35,19 +38,23 @@ document.addEventListener('DOMContentLoaded', () => {
         orderToggleBtn.classList.toggle('btn-fill', isOrderMode);
     };
 
-    orderToggleBtn?.addEventListener('click', () => {
-        isOrderMode = !isOrderMode; // Toggle state
-        updateToggleUI();
-        renderMenu(); // Re-render everything with/without quantity controls
-    });
+    if (orderToggleBtn) {
+        orderToggleBtn.addEventListener('click', () => {
+            isOrderMode = !isOrderMode; // Toggle state
+            updateToggleUI();
+            renderMenu(); // Re-render everything with/without quantity controls
+        });
+    }
 
     updateToggleUI(); // Initialize button text
 
     // 1. Search Logic
-    searchInput?.addEventListener('input', (e) => {
-        const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-        renderMenu(activeFilter, e.target.value);
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            renderMenu(activeFilter, e.target.value);
+        });
+    }
 
     // 2. Main Render Engine
     const renderMenu = (filter = 'all', search = '') => {
@@ -56,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!menuData || !menuData.categories) return;
 
         menuData.categories.forEach(cat => {
-            // Category level filter - Check name against filter (e.g., "Food" vs "food")
+            // Category level filter
             if (filter !== 'all' && filter !== 'specials') {
                 if (cat.name.toLowerCase() !== filter.toLowerCase()) return;
             }
@@ -72,15 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let hasVisibleSubCats = false;
 
             cat.subCategories.forEach(sub => {
-                // Determine which items to show based on search and "Specials" filter
                 const filteredItems = sub.items.filter(item => {
                     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-
-                    // If the "Special Offers" filter is clicked
                     if (filter === 'specials') {
                         return matchesSearch && isOfferActive(item);
                     }
-
                     return matchesSearch;
                 });
 
@@ -107,16 +110,23 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <p style="font-size:0.8rem; color:var(--text-gray)">${item.description || ''}</p>
                                 </div>
                                 <div class="price-list">
-                                    ${Object.entries(item.prices).map(([size, price]) => {
-                        if (activeSpecial && item.discount) {
-                            const discounted = (price * (1 - item.discount / 100)).toFixed(2);
-                            return `<div class="price-row">
-                                                        <span class="old-price">GHS ${price}</span>
-                                                        <span class="new-price">${size}: GHS ${discounted}</span>
-                                                    </div>`;
-                        }
-                        return `<div>${size}: GHS ${price}</div>`;
-                    }).join('')}
+                                    <!-- UPDATED: Use priceOrder array for rendering prices -->
+                                    ${priceOrder.map(size => {
+                                        const price = item.prices[size];
+                                        if (!price) return ''; // Skip if this size doesn't exist
+
+                                        // Format Label (e.g. "xl" -> "XL", "standard" -> "Standard")
+                                        const label = size === 'xl' ? 'XL' : size.charAt(0).toUpperCase() + size.slice(1);
+
+                                        if (activeSpecial && item.discount) {
+                                            const discounted = (price * (1 - item.discount / 100)).toFixed(2);
+                                            return `<div class="price-row">
+                                                <span class="old-price">GHS ${price}</span>
+                                                <span class="new-price">${label}: GHS ${discounted}</span>
+                                            </div>`;
+                                        }
+                                        return `<div>${label}: GHS ${price}</div>`;
+                                    }).join('')}
                                 </div>
                             </div>
                             ${isOrderMode ? renderOrderControls(item) : ''}
@@ -127,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             categoryHtml += `</div>`;
 
-            // Only add the category to the final HTML if it actually has items to show
             if (hasVisibleSubCats) {
                 html += categoryHtml;
             }
@@ -140,16 +149,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Order Controls (Updated for UI Persistence)
     const renderOrderControls = (item) => {
         let sizeHtml = '<div class="order-management">';
-        Object.entries(item.prices).forEach(([size, price]) => {
+        
+        // UPDATED: Use priceOrder loop here too
+        priceOrder.forEach(size => {
+            const price = item.prices[size];
+            if (!price) return; // Skip if size not available
+
             const controlId = `${item.id}-${size}`;
             const savedQty = orderBasket[controlId]?.qty || 0; // Check basket
+            
+            // Format Label
+            const label = size === 'xl' ? 'XL' : size.charAt(0).toUpperCase() + size.slice(1);
+
             sizeHtml += `
                 <div class="size-row">
-                    <span class="size-label">${size} (GHS ${price})</span>
+                    <span class="size-label">${label} (GHS ${price})</span>
                     <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('${controlId}', -1, '${item.name}', '${size}', ${price})">-</button>
+                        <button class="qty-btn" onclick="updateQty('${controlId}', -1, '${item.name}', '${label}', ${price})">-</button>
                         <span id="qty-${controlId}">${savedQty}</span>
-                        <button class="qty-btn" onclick="updateQty('${controlId}', 1, '${item.name}', '${size}', ${price})">+</button>
+                        <button class="qty-btn" onclick="updateQty('${controlId}', 1, '${item.name}', '${label}', ${price})">+</button>
                     </div>
                 </div>
             `;
@@ -158,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 4. Global Qty Update
-    window.updateQty = (controlId, change, itemName, size, price) => {
+    window.updateQty = (controlId, change, itemName, sizeLabel, price) => {
         const qtyEl = document.getElementById(`qty-${controlId}`);
         let currentQty = orderBasket[controlId]?.qty || 0;
         let newQty = Math.max(0, currentQty + change);
@@ -166,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (qtyEl) qtyEl.innerText = newQty;
 
         if (newQty > 0) {
-            orderBasket[controlId] = { name: itemName, size: size, qty: newQty, price: price };
+            orderBasket[controlId] = { name: itemName, size: sizeLabel, qty: newQty, price: price };
         } else {
             delete orderBasket[controlId];
         }
@@ -186,29 +204,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (itemCountEl) itemCountEl.innerText = totalItems;
-        if (totalPriceEl) totalPriceEl.innerText = `GHS ${totalPrice}`;
-        orderBar?.classList.toggle('active', totalItems > 0);
+        if (totalPriceEl) totalPriceEl.innerText = `GHS ${totalPrice.toFixed(2)}`;
+        if (orderBar) orderBar.classList.toggle('active', totalItems > 0);
     };
 
-    // 6. WhatsApp Message Generator (MOVED INSIDE)
+    // 6. WhatsApp Message Generator
     const whatsappBtn = document.getElementById('whatsapp-send');
-    whatsappBtn?.addEventListener('click', () => {
-        if (Object.keys(orderBasket).length === 0) return;
+    if (whatsappBtn) {
+        whatsappBtn.addEventListener('click', () => {
+            if (Object.keys(orderBasket).length === 0) return;
 
-        let message = "Hello Icon Lounge! I'd like to place an order:\n\n";
-        let grandTotal = 0;
+            let message = "Hello Icon Lounge! I'd like to place an order:\n\n";
+            let grandTotal = 0;
 
-        Object.values(orderBasket).forEach(item => {
-            const subtotal = item.qty * item.price;
-            message += `• ${item.qty}x ${item.name} (${item.size}) - GHS ${subtotal}\n`;
-            grandTotal += subtotal;
+            Object.values(orderBasket).forEach(item => {
+                const subtotal = item.qty * item.price;
+                message += `• ${item.qty}x ${item.name} (${item.size}) - GHS ${subtotal.toFixed(2)}\n`;
+                grandTotal += subtotal;
+            });
+
+            message += `\n*Grand Total: GHS ${grandTotal.toFixed(2)}*`;
+            
+            // Use contact info from global variable or fallback
+            const phone = (typeof contactInfo !== 'undefined' && contactInfo.whatsapp) ? contactInfo.whatsapp : "233200000000";
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
         });
-
-        message += `\n*Grand Total: GHS ${grandTotal}*`;
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${contactInfo.whatsapp}?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-    });
+    }
 
     // 7. Filter Buttons Logic
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -224,5 +248,3 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMenu();
     });
 });
-
-

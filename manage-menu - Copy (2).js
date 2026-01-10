@@ -216,55 +216,13 @@ async function handleSaveItem(e) {
 }
 
 /**
- * Deletes an item from Database AND Storage
+ * Deletes an item after confirmation
  */
 async function deleteItem(id) {
-    if (!confirm('Are you sure you want to delete this item? This cannot be undone.')) return;
-
-    // 1. Fetch the item first to get the image URL
-    const { data: item, error: fetchError } = await _supabase
-        .from('items')
-        .select('image_url')
-        .eq('id', id)
-        .single();
-
-    if (fetchError) {
-        alert("Error finding item: " + fetchError.message);
-        return;
-    }
-
-    // 2. Delete Image from Storage (if it exists and is not a placeholder)
-    const imageUrl = item.image_url;
-    if (imageUrl && imageUrl.includes('menu-images') && !imageUrl.includes('placeholder')) {
-        try {
-            // Extract the filename from the URL (everything after the last slash)
-            // URL format: .../storage/v1/object/public/menu-images/item-12345.jpg
-            const fileName = imageUrl.split('/').pop();
-
-            // Remove from Supabase Storage
-            const { error: storageError } = await _supabase.storage
-                .from('menu-images')
-                .remove([fileName]);
-
-            if (storageError) {
-                console.warn("Could not delete image file:", storageError.message);
-                // We verify strictly but don't stop the DB deletion if image fails
-            }
-        } catch (err) {
-            console.error("Error processing image deletion:", err);
-        }
-    }
-
-    // 3. Delete the Row from Database
-    const { error: deleteError } = await _supabase
-        .from('items')
-        .delete()
-        .eq('id', id);
-
-    if (deleteError) {
-        alert("Error deleting database record: " + deleteError.message);
-    } else {
-        loadItems(); // Refresh the table
+    if (confirm('Are you sure you want to delete this item? This cannot be undone.')) {
+        const { error } = await _supabase.from('items').delete().eq('id', id);
+        if (error) alert(error.message);
+        else loadItems();
     }
 }
 
@@ -361,9 +319,9 @@ function renderDaySelector() {
 async function deleteSubCat(id) {
     if (confirm('Remove sub-category?')) {
         const { error } = await _supabase.from('sub_categories').delete().eq('id', id);
-        if (!error) {
-            loadSettingsData();
-            loadSubCategories();
+        if (!error) { 
+            loadSettingsData(); 
+            loadSubCategories(); 
         } else {
             alert(error.message);
         }
@@ -404,7 +362,7 @@ async function loadSettingsData() {
         // Keep current selection if user is editing, otherwise reset
         const currentVal = parentCatSelect.value;
         parentCatSelect.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
+        
         // Restore selection if in edit mode
         if (currentVal && document.getElementById('editSubCatId').value) {
             parentCatSelect.value = currentVal;
@@ -492,7 +450,7 @@ window.editSubCat = (id, name, catId) => {
 
     // Change UI to "Edit Mode"
     const btn = document.getElementById('saveSubCatBtn');
-    btn.classList.replace('bg-[#d4af37]', 'bg-blue-600');
+    btn.classList.replace('bg-[#d4af37]', 'bg-blue-600'); 
     btn.classList.replace('hover:bg-yellow-600', 'hover:bg-blue-500');
 
     document.getElementById('subCatBtnIcon').classList.replace('fa-plus', 'fa-save');
