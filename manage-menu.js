@@ -1,5 +1,12 @@
 // manage-menu.js
 let userRole = 'admin'; // Global role tracker
+
+// --- Pagination & Filter State ---
+const ITEMS_PER_PAGE = 10;
+let currentPage = 1;
+let currentSearch = "";
+let currentFilter = "all";
+
 const placeholderImage = 'images/logo-placeholder.png';
 
 // --- NEW: Helper to upload image to Supabase Storage ---
@@ -83,19 +90,42 @@ function formatPricesForTable(prices) {
 }
 
 /**
- * Fetches all items and renders the management table
+ * Fetches items with pagination, search, and category filtering
  */
 async function loadItems() {
-    const { data, error } = await _supabase
+    const from = (currentPage - 1) * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+
+    // 1. Build Base Query
+    let query = _supabase
         .from('items')
-        .select('*, sub_categories(name)')
-        .order('created_at', { ascending: false });
+        .select('*, sub_categories!inner(name, categories!inner(name))', { count: 'exact' });
+
+    // 2. Apply Search
+    if (currentSearch) {
+        query = query.ilike('name', `%${currentSearch}%`);
+    }
+
+    // 3. Apply Category Filter (Food vs Drinks)
+    if (currentFilter !== 'all') {
+        query = query.eq('sub_categories.categories.name',
+            currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1));
+    }
+
+    // 4. Execute with Range
+    const { data, count, error } = await query
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
     if (error) {
         console.error("Error loading items:", error);
         return;
     }
 
+    // 5. Update Pagination UI
+    updatePaginationUI(count);
+
+    // 6. Render Table
     const tbody = document.getElementById('items-table-body');
     if (!tbody) return;
 
@@ -111,6 +141,14 @@ async function loadItems() {
             </td>
             <td class="p-4 text-center">
                 ${item.featured ? '<span class="text-green-500">✅</span>' : '<span class="text-zinc-600">❌</span>'}
+            </td>
+            <!-- NEW STATUS COLUMN -->
+            <td class="p-4 text-center">
+                <button onclick="toggleAvailability(${item.id}, ${item.is_available})" 
+                        class="transition ${item.is_available ? 'text-zinc-400 hover:text-white' : 'text-red-500 hover:text-red-400'}"
+                        title="${item.is_available ? 'Visible on Menu' : 'Hidden from Menu'}">
+                    <i class="fas ${item.is_available ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                </button>
             </td>
             <td class="p-4 text-right">
                 <button onclick="editItem(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="text-blue-500 hover:text-blue-400 mr-4">
@@ -528,3 +566,52 @@ async function saveSmsSettings() {
 
     alert("System settings updated successfully!");
 }
+
+// --- Logic: Pagination Helper ---
+function updatePaginationUI(totalItems) {
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    const from = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+    const to = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+
+    document.getElementById('paginationInfo').innerText = `Showing ${totalItems > 0 ? from : 0} to ${to} of ${totalItems} items`;
+    document.getElementById('currentPageDisplay').innerText = currentPage;
+    
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage >= totalPages || totalItems === 0;
+}
+
+// --- Logic: Toggle Availability ---
+async function toggleAvailability(id, currentStatus) {
+    const { error } = await _supabase
+        .from('items')
+        .update({ is_available: !currentStatus })
+        .eq('id', id);
+
+    if (error) alert(error.message);
+    else loadItems(); // Refresh current view
+}
+
+// --- Listeners for Search & Filter ---
+document.getElementById('itemSearchInput')?.addEventListener('input', (e) => {
+    currentSearch = e.target.value;
+    currentPage = 1; // Reset to page 1 on new search
+    loadItems();
+});
+
+document.getElementById('itemCategoryFilter')?.addEventListener('change', (e) => {
+    currentFilter = e.target.value;
+    currentPage = 1; // Reset to page 1 on filter change
+    loadItems();
+});
+
+document.getElementById('prevPage')?.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        loadItems();
+    }
+});
+
+document.getElementById('nextPage')?.addEventListener('click', () => {
+    currentPage++;
+    loadItems();
+});

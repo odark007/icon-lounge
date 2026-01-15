@@ -57,6 +57,22 @@
         <section class="p-8 overflow-y-auto flex-1">
             <!-- Items Section -->
             <div id="section-items">
+                <!-- Items Toolbar: Search and Category Filter -->
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-1 relative">
+                        <i class="fas fa-search absolute left-3 top-3 text-zinc-500"></i>
+                        <input type="text" id="itemSearchInput" placeholder="Search items..."
+                            class="w-full bg-zinc-900 border border-zinc-800 rounded p-2 pl-10 outline-none focus:border-[#d4af37] text-sm">
+                    </div>
+                    <div class="w-full md:w-48">
+                        <select id="itemCategoryFilter"
+                            class="w-full bg-zinc-900 border border-zinc-800 rounded p-2 outline-none focus:border-[#d4af37] text-sm text-zinc-400">
+                            <option value="all">All Categories</option>
+                            <option value="food">Food</option>
+                            <option value="drinks">Drinks</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="bg-zinc-900 rounded-lg border border-zinc-800 overflow-x-auto">
                     <table class="w-full text-left min-w-[800px]">
                         <thead class="bg-zinc-800 text-zinc-400 text-sm uppercase">
@@ -65,6 +81,7 @@
                                 <th class="p-4">Category</th>
                                 <th class="p-4">Price Tier</th>
                                 <th class="p-4">Featured</th>
+                                <th class="p-4">Status</th>
                                 <th class="p-4 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -72,6 +89,22 @@
                             <!-- Items Injected Here -->
                         </tbody>
                     </table>
+                </div>
+                <!-- Pagination Controls -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 text-sm text-zinc-500">
+                    <div id="paginationInfo">Showing 0 to 0 of 0 items</div>
+                    <div class="flex items-center gap-2">
+                        <button id="prevPage"
+                            class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed">
+                            <i class="fas fa-chevron-left mr-2"></i> Previous
+                        </button>
+                        <span id="currentPageDisplay"
+                            class="px-4 py-2 bg-zinc-800 rounded text-zinc-300 font-bold">1</span>
+                        <button id="nextPage"
+                            class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed">
+                            Next <i class="fas fa-chevron-right ml-2"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 

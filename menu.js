@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    let currentSubFilter = "all"; // Tracks the dropdown selection
     let orderBasket = {}; // Scoped inside DOMContentLoaded
 
     const menuDisplay = document.getElementById('menu-display');
@@ -79,6 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let hasVisibleSubCats = false;
 
             cat.subCategories.forEach(sub => {
+                // --- NEW: Sub-category filter logic ---
+                // If a specific sub-category is selected, skip others
+                if (currentSubFilter !== 'all' && sub.id.toString() !== currentSubFilter.toString()) return;
+
                 const filteredItems = sub.items.filter(item => {
                     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
                     if (filter === 'specials') {
@@ -112,21 +117,21 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="price-list">
                                     <!-- UPDATED: Use priceOrder array for rendering prices -->
                                     ${priceOrder.map(size => {
-                                        const price = item.prices[size];
-                                        if (!price) return ''; // Skip if this size doesn't exist
+                        const price = item.prices[size];
+                        if (!price) return ''; // Skip if this size doesn't exist
 
-                                        // Format Label (e.g. "xl" -> "XL", "standard" -> "Standard")
-                                        const label = size === 'xl' ? 'XL' : size.charAt(0).toUpperCase() + size.slice(1);
+                        // Format Label (e.g. "xl" -> "XL", "standard" -> "Standard")
+                        const label = size === 'xl' ? 'XL' : size.charAt(0).toUpperCase() + size.slice(1);
 
-                                        if (activeSpecial && item.discount) {
-                                            const discounted = (price * (1 - item.discount / 100)).toFixed(2);
-                                            return `<div class="price-row">
+                        if (activeSpecial && item.discount) {
+                            const discounted = (price * (1 - item.discount / 100)).toFixed(2);
+                            return `<div class="price-row">
                                                 <span class="old-price">GHS ${price}</span>
                                                 <span class="new-price">${label}: GHS ${discounted}</span>
                                             </div>`;
-                                        }
-                                        return `<div>${label}: GHS ${price}</div>`;
-                                    }).join('')}
+                        }
+                        return `<div>${label}: GHS ${price}</div>`;
+                    }).join('')}
                                 </div>
                             </div>
                             ${isOrderMode ? renderOrderControls(item) : ''}
@@ -149,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Order Controls (Updated for UI Persistence)
     const renderOrderControls = (item) => {
         let sizeHtml = '<div class="order-management">';
-        
+
         // UPDATED: Use priceOrder loop here too
         priceOrder.forEach(size => {
             const price = item.prices[size];
@@ -157,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const controlId = `${item.id}-${size}`;
             const savedQty = orderBasket[controlId]?.qty || 0; // Check basket
-            
+
             // Format Label
             const label = size === 'xl' ? 'XL' : size.charAt(0).toUpperCase() + size.slice(1);
 
@@ -224,10 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             message += `\n*Grand Total: GHS ${grandTotal.toFixed(2)}*`;
-            
+
             // Use contact info from global variable or fallback
             const phone = (typeof contactInfo !== 'undefined' && contactInfo.whatsapp) ? contactInfo.whatsapp : "233200000000";
-            
+
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
             window.open(whatsappUrl, '_blank');
@@ -237,14 +242,50 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7. Filter Buttons Logic
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
+            const newFilter = e.target.dataset.filter;
             document.querySelector('.filter-btn.active').classList.remove('active');
             e.target.classList.add('active');
-            renderMenu(e.target.dataset.filter);
+
+            // Reset sub-filter state
+            currentSubFilter = 'all';
+            updateSubCategoryDropdown(newFilter);
+
+            renderMenu(newFilter);
         });
     });
 
-    // Wait for Supabase data before rendering
+    // 8. Sub-Category Dropdown Listener
+    document.getElementById('sub-category-select')?.addEventListener('change', (e) => {
+        currentSubFilter = e.target.value;
+        const activeMainFilter = document.querySelector('.filter-btn.active').dataset.filter;
+        renderMenu(activeMainFilter);
+    });
+
+    // 9. Data Loaded Hook
     window.addEventListener('menuDataLoaded', () => {
+        updateSubCategoryDropdown('all'); // Initial fill
         renderMenu();
     });
 });
+
+// --- Logic: Populate Sub-Category Dropdown ---
+function updateSubCategoryDropdown(mainFilter = 'all') {
+    const select = document.getElementById('sub-category-select');
+    if (!select || !menuData.categories) return;
+
+    // 1. Reset select to default
+    select.innerHTML = '<option value="all">All Sub-categories</option>';
+
+    // 2. Extract relevant sub-categories
+    menuData.categories.forEach(cat => {
+        // If main filter is 'all' or matches this category
+        if (mainFilter === 'all' || cat.name.toLowerCase() === mainFilter.toLowerCase()) {
+            cat.subCategories.forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub.id; // Use ID for precise filtering
+                option.textContent = sub.name;
+                select.appendChild(option);
+            });
+        }
+    });
+}

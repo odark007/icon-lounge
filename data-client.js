@@ -23,7 +23,8 @@ async function fetchMenuFromSupabase() {
                 items (
                     id, name, description, image_url, prices, featured,
                     is_special, special_text, discount_percent, 
-                    special_start, special_end, special_days
+                    special_start, special_end, special_days,
+                    is_available
                 )
             )
         `);
@@ -44,22 +45,23 @@ async function fetchMenuFromSupabase() {
             id: sub.id,
             name: sub.name,
             specialOffer: sub.special_offer,
-            // Ensure this key is exactly "items"
-            items: (sub.items || []).map(item => ({
-                id: item.id,
-                name: item.name,
-                description: item.description,
-                image: item.image_url,
-                prices: item.prices,
-                featured: item.featured,
-                // --- Essential Mapping ---
-                isSpecial: item.is_special,
-                specialText: item.special_text,
-                discount: item.discount_percent,
-                specialStart: item.special_start,
-                specialEnd: item.special_end,
-                specialDays: item.special_days || []
-            }))
+            // Only include items that are marked as available
+            items: (sub.items || [])
+                .filter(item => item.is_available === true)
+                .map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    description: item.description,
+                    image: item.image_url,
+                    prices: item.prices,
+                    featured: item.featured,
+                    isSpecial: item.is_special,
+                    specialText: item.special_text,
+                    discount: item.discount_percent,
+                    specialStart: item.special_start,
+                    specialEnd: item.special_end,
+                    specialDays: item.special_days || []
+                }))
         }))
     }));
 

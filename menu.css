@@ -198,3 +198,47 @@
 }
 .new-price { color: var(--primary-gold); }
 .text-gold { color: var(--primary-gold); }
+
+
+/* Sub-Category Dropdown Styling */
+.sub-filter-box {
+    max-width: 300px;
+    width: 100%;
+}
+
+.sub-select {
+    width: 100%;
+    padding: 10px 15px;
+    background: var(--secondary-dark);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: var(--text-light);
+    outline: none;
+    cursor: pointer;
+    transition: var(--transition);
+    appearance: none; /* Removes default browser arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+}
+
+.sub-select:focus {
+    border-color: var(--primary-gold);
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
+}
+
+.sub-select option {
+    background: var(--secondary-dark);
+    color: var(--text-light);
+}
+
+/* Mobile Adjustment: Stack dropdown on small screens */
+@media (max-width: 768px) {
+    .menu-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .sub-filter-box, .search-box {
+        max-width: 100%;
+    }
+}
